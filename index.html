@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Generation System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .btn-danger:hover {
+            background: #ff5252;
+        }
+
+        .btn-success {
+            background: #51cf66;
+            color: white;
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .btn-success:hover {
+            background: #40c057;
+        }
+
+        .items-container {
+            margin-top: 20px;
+        }
+
+        .item-row {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .item-row input {
+            margin-bottom: 10px;
+        }
+
+        .item-row .form-row {
+            margin-top: 10px;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .bills-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .bill-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bill-info {
+            flex: 1;
+        }
+
+        .bill-number {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .bill-date {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .bill-total {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .bill-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .bill-actions button {
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .preview-section {
+            margin-top: 30px;
+        }
+
+        .preview-bill {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .bill-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        .bill-header h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .bill-info-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .bill-section {
+            margin-bottom: 20px;
+        }
+
+        .bill-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .bill-section p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .totals {
+            width: 300px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .total-row.total-amount {
+            border-top: 2px solid #667eea;
+            border-bottom: 2px solid #667eea;
+            font-weight: 600;
+            font-size: 1.2em;
+            padding: 15px 0;
+            color: #667eea;
+        }
+
+        .notes {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .bill-info-row {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .bill-actions {
+                flex-direction: column;
+            }
+        }
+
+        .no-bills {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-size: 1.1em;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 Bill Generation System</h1>
+            <p>Create, manage, and export professional invoices</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Form Section -->
+            <div class="card">
+                <h2>Create New Bill</h2>
+                <div id="alert-container"></div>
+                
+                <form id="billForm">
+                    <!-- Bill From -->
+                    <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 15px;">Bill From (Your Company)</h3>
+                    
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" id="fromCompany" value="Your Company Name" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="fromEmail" value="company@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" id="fromPhone" value="+1-800-000-0000">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="fromAddress" value="123 Business Street, City, State 12345">
+                    </div>
+
+                    <!-- Bill To -->
+                    <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 15px;">Bill To (Customer)</h3>
+                    
+                    <div class="form-group">
+                        <label>Customer Name *</label>
+                        <input type="text" id="toName" placeholder="Customer name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" id="toCompany" placeholder="Company name">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="toEmail" placeholder="customer@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" id="toPhone" placeholder="+1-800-000-0000">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="toAddress" placeholder="Customer address">
+                    </div>
+
+                    <!-- Dates -->
+                    <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 15px;">Bill Details</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Due Date</label>
+                            <input type="date" id="dueDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tax Rate (%)</label>
+                            <input type="number" id="taxRate" value="10" min="0" max="100" step="0.01">
+                        </div>
+                    </div>
+
+                    <!-- Items -->
+                    <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 15px;">Items</h3>
+                    
+                    <div class="items-container" id="itemsContainer">
+                        <div class="item-row">
+                            <input type="text" class="item-name" placeholder="Item name" required>
+                            <input type="text" class="item-description" placeholder="Description">
+                            <div class="form-row">
+                                <input type="number" class="item-quantity" placeholder="Quantity" value="1" min="1" step="1" required>
+                                <input type="number" class="item-price" placeholder="Price" value="0" min="0" step="0.01" required>
+                            </div>
+                            <div class="item-actions">
+                                <button type="button" class="btn-success" onclick="addItemRow()">+ Add Item</button>
+                                <button type="button" class="btn-danger" onclick="removeItemRow(this)">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label>Notes</label>
+                        <textarea id="notes" placeholder="Additional notes or payment terms"></textarea>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="button-group">
+                        <button type="submit" class="btn-primary">Generate Bill</button>
+                        <button type="reset" class="btn-secondary">Clear</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Bills List Section -->
+            <div class="card">
+                <h2>Recent Bills</h2>
+                <div class="bills-list" id="billsList">
+                    <div class="no-bills">No bills yet. Create your first bill!</div>
+                </div>
+                <div class="button-group" style="margin-top: 20px;">
+                    <button class="btn-primary" onclick="refreshBills()">Refresh List</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="card preview-section" id="previewSection" style="display: none;">
+            <h2>Bill Preview</h2>
+            <div class="preview-bill" id="billPreview"></div>
+        </div>
+    </div>
+
+    <script>
+        // Set today's date as default
+        document.getElementById('dueDate').valueAsDate = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
+
+        // Add item row
+        function addItemRow() {
+            const container = document.getElementById('itemsContainer');
+            const itemRow = document.createElement('div');
+            itemRow.className = 'item-row';
+            itemRow.innerHTML = `
+                <input type="text" class="item-name" placeholder="Item name" required>
+                <input type="text" class="item-description" placeholder="Description">
+                <div class="form-row">
+                    <input type="number" class="item-quantity" placeholder="Quantity" value="1" min="1" step="1" required>
+                    <input type="number" class="item-price" placeholder="Price" value="0" min="0" step="0.01" required>
+                </div>
+                <div class="item-actions">
+                    <button type="button" class="btn-success" onclick="addItemRow()">+ Add Item</button>
+                    <button type="button" class="btn-danger" onclick="removeItemRow(this)">Remove</button>
+                </div>
+            `;
+            container.appendChild(itemRow);
+        }
+
+        // Remove item row
+        function removeItemRow(button) {
+            const container = document.getElementById('itemsContainer');
+            if (container.children.length > 1) {
+                button.closest('.item-row').remove();
+            } else {
+                showAlert('You must have at least one item', 'error');
+            }
+        }
+
+        // Get form data
+        function getFormData() {
+            const items = [];
+            document.querySelectorAll('.item-row').forEach(row => {
+                const name = row.querySelector('.item-name').value;
+                const description = row.querySelector('.item-description').value;
+                const quantity = row.querySelector('.item-quantity').value;
+                const price = row.querySelector('.item-price').value;
+
+                if (name && quantity && price) {
+                    items.push({
+                        name,
+                        description,
+                        quantity: parseFloat(quantity),
+                        price: parseFloat(price)
+                    });
+                }
+            });
+
+            return {
+                billFrom: {
+                    company: document.getElementById('fromCompany').value,
+                    email: document.getElementById('fromEmail').value,
+                    phone: document.getElementById('fromPhone').value,
+                    address: document.getElementById('fromAddress').value
+                },
+                billTo: {
+                    name: document.getElementById('toName').value,
+                    company: document.getElementById('toCompany').value,
+                    email: document.getElementById('toEmail').value,
+                    phone: document.getElementById('toPhone').value,
+                    address: document.getElementById('toAddress').value
+                },
+                dueDate: document.getElementById('dueDate').value,
+                taxRate: parseFloat(document.getElementById('taxRate').value),
+                items: items,
+                notes: document.getElementById('notes').value
+            };
+        }
+
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alert-container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        // Generate bill
+        document.getElementById('billForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = getFormData();
+
+            if (data.items.length === 0) {
+                showAlert('Please add at least one item', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/generate-bill', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate bill');
+                }
+
+                const bill = await response.json();
+                showAlert(`Bill ${bill.billNumber} created successfully!`, 'success');
+                displayBillPreview(bill);
+                document.getElementById('billForm').reset();
+                document.getElementById('dueDate').valueAsDate = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
+                refreshBills();
+            } catch (error) {
+                showAlert('Error creating bill: ' + error.message, 'error');
+            }
+        });
+
+        // Display bill preview
+        function displayBillPreview(bill) {
+            const preview = document.getElementById('billPreview');
+            let itemsHTML = '';
+            let subtotal = 0;
+
+            bill.items.forEach(item => {
+                const total = item.quantity * item.price;
+                subtotal += total;
+                itemsHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.description}</td>
+                        <td style="text-align: center;">${item.quantity}</td>
+                        <td style="text-align: right;">${formatCurrency(item.price)}</td>
+                        <td style="text-align: right;">${formatCurrency(total)}</td>
+                    </tr>
+                `;
+            });
+
+            const html = `
+                <div class="bill-header">
+                    <h1>INVOICE</h1>
+                    <p>Bill Number: ${bill.billNumber}</p>
+                </div>
+
+                <div class="bill-info-row">
+                    <div>
+                        <div class="bill-section">
+                            <h3>FROM</h3>
+                            <p>
+                                <strong>${bill.billFrom.company}</strong><br>
+                                ${bill.billFrom.address}<br>
+                                Email: ${bill.billFrom.email}<br>
+                                Phone: ${bill.billFrom.phone}
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="bill-section">
+                            <h3>BILL TO</h3>
+                            <p>
+                                <strong>${bill.billTo.name}</strong><br>
+                                ${bill.billTo.company}<br>
+                                ${bill.billTo.address}<br>
+                                Email: ${bill.billTo.email}<br>
+                                Phone: ${bill.billTo.phone}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bill-section">
+                    <p><strong>Bill Date:</strong> ${bill.date}</p>
+                    <p><strong>Due Date:</strong> ${bill.dueDate}</p>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Description</th>
+                            <th style="text-align: center;">Quantity</th>
+                            <th style="text-align: right;">Price</th>
+                            <th style="text-align: right;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHTML}
+                    </tbody>
+                </table>
+
+                <div class="totals-section">
+                    <div class="totals">
+                        <div class="total-row">
+                            <span>Subtotal:</span>
+                            <span>${formatCurrency(bill.subtotal)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Tax (${bill.taxRate}%):</span>
+                            <span>${formatCurrency(bill.tax)}</span>
+                        </div>
+                        <div class="total-row total-amount">
+                            <span>TOTAL:</span>
+                            <span>${formatCurrency(bill.total)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                ${bill.notes ? `
+                    <div class="notes">
+                        <h3>Notes</h3>
+                        <p>${bill.notes}</p>
+                    </div>
+                ` : ''}
+
+                <div class="button-group" style="margin-top: 30px;">
+                    <button class="btn-success" onclick="exportPDF('${bill.id}')">📥 Export as PDF</button>
+                </div>
+            `;
+
+            preview.innerHTML = html;
+            document.getElementById('previewSection').style.display = 'block';
+            window.scrollTo(0, document.getElementById('previewSection').offsetTop - 100);
+        }
+
+        // Export PDF
+        async function exportPDF(billId) {
+            try {
+                const response = await fetch(`/api/bill/${billId}/pdf`);
+                if (!response.ok) {
+                    throw new Error('Failed to export PDF');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Bill-${billId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                showAlert('Bill exported as PDF successfully!', 'success');
+            } catch (error) {
+                showAlert('Error exporting PDF: ' + error.message, 'error');
+            }
+        }
+
+        // Refresh bills
+        async function refreshBills() {
+            try {
+                const response = await fetch('/api/bills');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch bills');
+                }
+
+                const bills = await response.json();
+                const billsList = document.getElementById('billsList');
+
+                if (bills.length === 0) {
+                    billsList.innerHTML = '<div class="no-bills">No bills yet. Create your first bill!</div>';
+                    return;
+                }
+
+                let html = '';
+                bills.forEach(bill => {
+                    html += `
+                        <div class="bill-item">
+                            <div class="bill-info">
+                                <div class="bill-number">${bill.billNumber}</div>
+                                <div class="bill-date">To: ${bill.billTo.name} | Date: ${bill.date}</div>
+                                <div class="bill-total">Total: ${formatCurrency(bill.total)}</div>
+                            </div>
+                            <div class="bill-actions">
+                                <button class="btn-success" onclick="viewBill('${bill.id}')">👁️ View</button>
+                                <button class="btn-primary" onclick="exportPDF('${bill.id}')">📥 PDF</button>
+                                <button class="btn-danger" onclick="deleteBill('${bill.id}')">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                billsList.innerHTML = html;
+            } catch (error) {
+                showAlert('Error fetching bills: ' + error.message, 'error');
+            }
+        }
+
+        // View bill
+        async function viewBill(billId) {
+            try {
+                const response = await fetch(`/api/bill/${billId}`);
+                if (!response.ok) {
+                    throw new Error('Bill not found');
+                }
+
+                const bill = await response.json();
+                displayBillPreview(bill);
+            } catch (error) {
+                showAlert('Error loading bill: ' + error.message, 'error');
+            }
+        }
+
+        // Delete bill
+        async function deleteBill(billId) {
+            if (!confirm('Are you sure you want to delete this bill?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/bill/${billId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete bill');
+                }
+
+                showAlert('Bill deleted successfully!', 'success');
+                refreshBills();
+                document.getElementById('previewSection').style.display = 'none';
+            } catch (error) {
+                showAlert('Error deleting bill: ' + error.message, 'error');
+            }
+        }
+
+        // Load bills on page load
+        window.addEventListener('load', () => {
+            refreshBills();
+        });
+    </script>
+</body>
+</html>
